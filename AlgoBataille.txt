@@ -1,0 +1,100 @@
+Algorythme Bataille
+
+Types :
+    COULEURS: Enumération
+        ('PIQUE', 'COEUR', 'CARREAU', 'TREFLE')
+    FIN Enumération
+
+    CARTE: Enregistrement
+        valeur: ENTIER
+        couleur: COULEURS
+    FIN Enregistrement
+
+    CARTES : Pile de CARTE
+
+Variables :
+    JEU_COMPLET, JOUEUR1, JOUEUR2: CARTES
+
+
+Fonction generer_jeu_complet_aleatoire() : CARTES
+    Variables :
+        i, j, alea: ENTIER
+        carte: CARTE
+        jeu: CARTES
+        tempPile1[26], tempPile2[26]: Pile de CARTES
+
+    DEBUT
+        // Créer le jeu complet de 52 cartes
+        POUR i DE 1 A 4 
+            POUR j DE 1 A 13 
+                carte.valeur <- j
+                carte.couleur <- COULEURS[i]
+                jeu.empiler(carte)
+            FIN POUR
+        FIN POUR
+
+        // Mélanger le jeu qu'avec des piles
+        alea <- random(5, 26)
+        i <- 0
+        TANT QUE jeu.estVide() = FAUX
+            TANT QUE i < alea ET jeu.estVide() = FAUX
+                tempPile1.sommet().empiler(jeu.depiler())
+                tempPile2.empiler(tempPile1.depiler())
+                i <- i + 1
+            FIN TANT QUE
+            TANT QUE tempPile2.estVide() = FAUX
+                tempPile1.empiler(tempPile2.depiler())
+            FIN TANT QUE
+        FIN TANT QUE
+
+        POUR i DE 1 A alea
+            TANT QUE tempPile1.sommet().estVide() = FAUX
+                jeu.empiler(tempPile1.sommet().depiler())
+            FIN TANT QUE
+            tempPile1.depiler()
+        FIN POUR
+
+        RENVOYER jeu
+    FIN
+
+
+Procedure distribuer_jeu(jeu: CARTES, joueur1: CARTES, joueur2: CARTES)
+    Variables :
+        i: ENTIER
+
+    DEBUT
+        // Donne une carte sur deux à chaque joueur
+        POUR i DE 1 A 52/2
+            joueur1.empiler(jeu.depiler())
+            joueur2.empiler(jeu.depiler())
+        FIN POUR
+    FIN
+
+
+Fonction qui_gagne(joueur1: CARTES, joueur2: CARTES) : ENTIER
+    Variables :
+        carte1, carte2: CARTE
+        resultat, i: ENTIER
+
+    DEBUT
+        // Compare les cartes des joueurs
+        carte1 <- joueur1.depiler()
+        carte2 <- joueur2.depiler()
+
+        // Si les cartes sont égales, on compare les cartes suivantes
+        TANT QUE carte1.valeur = carte2.valeur ET joueur1.hauteur() >= 2 ET joueur2.hauteur() >= 2
+            POUR i DE 1 A 2
+                carte1 <- joueur1.depiler()
+                carte2 <- joueur2.depiler()
+            FIN POUR
+        FIN TANT QUE
+
+        // Quand les cartes ne sont plus égales, on compare les valeurs
+        SI carte1.valeur > carte2.valeur
+            resultat <- 1
+        SINON 
+            resultat <- 2
+        FIN SI
+
+        RENVOYER resultat
+    FIN
